@@ -1,0 +1,244 @@
+{
+    "name": "positive_cases_transformations",
+    "properties": {
+        "activities": [
+            {
+                "name": "set_processing_date",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "var_processing_date",
+                    "value": {
+                        "value": "@if(equals(pipeline().parameters.processing_date, 'yyyy-MM-dd'),formatDateTime(convertTimeZone(utcnow(),'UTC','Eastern Standard Time'), 'yyyy-MM-dd'),trim(pipeline().parameters.processing_date))",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "test_cycle_direct_cfg_src",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "set_processing_date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_cycle_direct_cfg_src",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_cycle_direct_cfg_tgt",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "test_cycle_direct_cfg_src",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_cycle_direct_cfg_tgt",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_cycle_indirect_cfg_1",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "set_processing_date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_cycle_indirect_cfg_1",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_cycle_indirect_cfg_2",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "test_cycle_indirect_cfg_1",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_cycle_indirect_cfg_2",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_cycle_indirect_cfg_3",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "test_cycle_indirect_cfg_2",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_cycle_indirect_cfg_3",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_cyclic_dependencies",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "set_processing_date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_cyclic_dependencies",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_file_for_mappings",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "set_processing_date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_file_for_mappings",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            },
+            {
+                "name": "test_program_type",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "test_file_for_mappings",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "test_program_type",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            }
+        ],
+        "parameters": {
+            "processing_date": {
+                "type": "String",
+                "defaultValue": "yyyy-MM-dd"
+            }
+        },
+        "variables": {
+            "var_processing_date": {
+                "type": "String"
+            }
+        },
+        "folder": {
+            "name": "positive_cases"
+        },
+        "annotations": []
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

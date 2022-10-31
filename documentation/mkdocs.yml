@@ -1,0 +1,55 @@
+site_name: Transformation Generator
+nav:
+  - Home: index.md
+  - Getting Started: getting_started.md
+  - User Guide: 
+    - user_guide/index.md
+    - Input Types:
+      - user_guide/input_types/project_config.md
+      - user_guide/input_types/config_entry.md
+      - user_guide/input_types/data_mapping.md
+      - user_guide/input_types/table_definition.md
+    - Generators:
+      - user_guide/generators/generate_data_linage.md
+      - user_guide/generators/generate_ddl_output.md
+      - user_guide/generators/generate_orchestration.md
+      - user_guide/generators/generate_sql_output.md
+  - Developer Guide: 
+    - developer_guide/index.md
+    - Input Objects: 
+      - developer_guide/input_objects/index.md
+      - Referential Validation: 
+        - developer_guide/input_objects/referentialValidation/config_entry.md
+        - developer_guide/input_objects/referentialValidation/data_mapping.md
+        - developer_guide/input_objects/referentialValidation/project_config.md
+        - developer_guide/input_objects/referentialValidation/table_definition.md
+    - Core Modules: 
+      - developer_guide/core_modules/index.md
+      - developer_guide/core_modules/config.md
+      - developer_guide/core_modules/mapping.md
+      - developer_guide/core_modules/sql_scripts.md
+      - developer_guide/core_modules/table_definition_reader.md
+extra_css: [extra.css]
+repo_name: transformation-generator
+repo_url: https://github.com/johnsonandjohnson/transformation-generator
+extra:
+    social:
+      - icon: fontawesome/brands/github
+        link: https://github.com/johnsonandjohnson/transformation-generator
+theme: 
+  name: material
+  favicon: img/favicon.ico
+  features:
+      - header.autohide
+      - navigation.tracking
+      - navigation.tabs
+      - navigation.tabs.sticky
+      - navigation.sections
+      - navigation.expand
+      - navigation.indexes
+  icon:
+    repo: fontawesome/brands/github
+  logo: img/logobg.png
+  palette:
+    primary: black
+

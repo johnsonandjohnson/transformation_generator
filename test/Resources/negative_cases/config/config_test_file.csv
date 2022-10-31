@@ -1,0 +1,2 @@
+target_table,target_type,target_language,input_files,dependencies,tuning_parameter,load_type
+trgt_table,trgt_type,impala,"input_file_1,input_file_2",dependency_abc,"tuning_prmtr_1,tning_prmtr_2",full

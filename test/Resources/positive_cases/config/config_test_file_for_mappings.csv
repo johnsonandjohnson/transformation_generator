@@ -1,0 +1,8 @@
+target_table,target_type,target_language,input_files,dependencies,tuning_parameter,load_type
+TEST.SIMPLE_TRANSFORM_GEN,,databricks,"mapping_test_file_simple_transform_gen.csv",,"sample cmd,%run test sample",
+TEST.CASE_STATEMENT,,databricks,"mapping_test_file_case_statement.csv",,"%run test sample",
+TEST.IS_NULL,,databricks,"mapping_test_file_is_null.csv",,"%run test sample,sample cmd",
+TEST.WHERE_CLAUSE,,databricks,"mapping_test_file_where_clause.csv",,"sample cmd,%run test sample,sample cmd",
+TEST.IMPLICIT_CAST,,databricks,"mapping_test_file_implicit_cast.csv",,,
+TEST.IN_CLAUSE,,databricks,"mapping_test_file_in_clause.csv",,,
+TEST.GROUP_BY,,databricks,"mapping_test_file_group_by.csv",,,

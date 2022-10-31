@@ -1,0 +1,43 @@
+{
+    "name": "test_cycle_indirect_cfg_2",
+    "properties": {
+        "activities": [
+            {
+                "name": "TEST-CYCLIC_DEPENDENCY_INDIRECT_CFG_2",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.CYCLIC_DEPENDENCY_INDIRECT_CFG_2",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            }
+        ],
+        "parameters": {
+            "processing_date": {
+                "type": "String"
+            }
+        },
+        "annotations": [],
+        "folder": {
+            "name": "SemanticPipelines"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

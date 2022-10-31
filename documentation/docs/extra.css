@@ -1,0 +1,86 @@
+.home-intro h2 {
+  font-weight: bolder;
+  text-align: center;
+}
+
+.bg-animation {  
+  animation: rotate 60s infinite linear;  
+  left: -20%;
+  opacity: .20;
+  overflow: hidden;
+  position: absolute;
+  top: 20%;
+  width: 40%;
+  z-index: -1; 
+}
+
+@keyframes rotate {
+	from { 
+    transform: rotate(0deg);
+  }
+	to { 
+    transform: rotate(360deg);
+  }
+}
+
+.splash,
+.inner-splash {
+  align-items: center;
+  border: 0px solid black;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: row;
+  flex-grow: initial;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.inner-splash {
+  flex-direction: column;
+}
+
+.steps {
+  align-items: center;
+  background-image: url("../../img/logobg.png");
+  background-position: bottom right;
+  background-size: 25%;
+  background-repeat: no-repeat;
+  border-radius: 8px;
+  display: flex;
+  height: 220px;
+  justify-content: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  width: 320px;
+}
+
+.steps.one {
+  background-color: #ff595e;
+}
+
+.steps.two {
+  align-items: flex-start;
+  background-color: #ffd166;
+}
+
+.steps.three {
+  background-color: #06d6a0;
+}
+
+.step-intro {
+  align-items: center;
+  border: 2px solid #000;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  font-size: 2rem;
+  float: left;
+  line-height: 1;
+  justify-content: top;
+  margin: 0 .3rem 0 0;
+  padding: 0.5rem;
+}
+
+.step-intro span {
+  font-size: 0.8rem;
+}

@@ -1,0 +1,12 @@
+antlr4-python3-runtime~=4.9.2
+coverage~=6.1.1
+fastapi~=0.70.0
+GitPython~=3.1.0
+mkdocs~=1.2.3
+mkdocs-material~=8.0.2
+pydantic~=1.8.2
+python-dotenv~=0.19.1
+requests~=2.26.0
+uvicorn~=0.15.0
+xlrd~=1.2.0
+typer~=0.6.1

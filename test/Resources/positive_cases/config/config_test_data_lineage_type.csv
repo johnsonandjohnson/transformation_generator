@@ -1,0 +1,2 @@
+target_table,target_type,target_language,input_files,dependencies,tuning_parameter,load_type
+TEST.DATA_LINEAGE_TARGET_TYPE,lineage,databricks,"mapping_test_file_data_lineage_target_type.csv",,,,

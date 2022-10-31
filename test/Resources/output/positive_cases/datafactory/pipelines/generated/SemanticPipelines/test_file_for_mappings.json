@@ -1,0 +1,199 @@
+{
+    "name": "test_file_for_mappings",
+    "properties": {
+        "activities": [
+            {
+                "name": "TEST-SIMPLE_TRANSFORM_GEN",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.SIMPLE_TRANSFORM_GEN",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "TEST-CASE_STATEMENT",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.CASE_STATEMENT",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "TEST-IS_NULL",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.IS_NULL",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "TEST-WHERE_CLAUSE",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.WHERE_CLAUSE",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "TEST-IMPLICIT_CAST",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.IMPLICIT_CAST",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "TEST-IN_CLAUSE",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.IN_CLAUSE",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "TEST-GROUP_BY",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/dml/TEST.GROUP_BY",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            }
+        ],
+        "parameters": {
+            "processing_date": {
+                "type": "String"
+            }
+        },
+        "annotations": [],
+        "folder": {
+            "name": "SemanticPipelines"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

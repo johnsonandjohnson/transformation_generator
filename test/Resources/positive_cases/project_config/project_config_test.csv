@@ -1,0 +1,10 @@
+config_filename,group_name,schedule_frequency,schedule_days,parallel_db_name,base_path,notebooks_to_execute,cluster_name,ddl_wrapper_script,sequence
+config_test_file_for_mappings.csv,positive_cases,daily,,,,,,,
+config_test_cyclic_dependencies.csv,positive_cases,daily,,,,,,,
+config_test_cycle_direct_cfg_src.csv,positive_cases,daily,,,,,,,1
+config_test_cycle_direct_cfg_tgt.csv,positive_cases,daily,,,,,,,2
+config_test_cycle_indirect_cfg_1.csv,positive_cases,daily,,,,,,,1
+config_test_cycle_indirect_cfg_2.csv,positive_cases,daily,,,,,,,2
+config_test_cycle_indirect_cfg_3.csv,positive_cases,daily,,,,,,,3
+config_test_data_lineage_type.csv,positive_cases,daily,,,,,,,
+config_test_program_type.csv,positive_cases,daily,,,,,,,

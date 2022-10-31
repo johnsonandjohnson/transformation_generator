@@ -1,0 +1,160 @@
+{
+    "name": "positive_cases_ddl",
+    "properties": {
+        "activities": [
+            {
+                "name": "config_test_cycle_direct_cfg_src",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_cycle_direct_cfg_src",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "config_test_cycle_direct_cfg_tgt",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_cycle_direct_cfg_tgt",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "config_test_cycle_indirect_cfg_1",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_cycle_indirect_cfg_1",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "config_test_cycle_indirect_cfg_2",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_cycle_indirect_cfg_2",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "config_test_cycle_indirect_cfg_3",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_cycle_indirect_cfg_3",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "config_test_cyclic_dependencies",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_cyclic_dependencies",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "config_test_file_for_mappings",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/positive_cases/databricks/generated/ddl/config_test_file_for_mappings",
+                    "baseParameters": {}
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            }
+        ],
+        "parameters": {},
+        "annotations": [],
+        "folder": {
+            "name": "DDL"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,2 @@
+target_table,target_type,target_language,input_files,dependencies,tuning_parameter,load_type
+TEST.PROGRAM_TARGET_TYPE,program,databricks,/path/to/databricks/notebook,TEST.CASE_STATEMENT,,,

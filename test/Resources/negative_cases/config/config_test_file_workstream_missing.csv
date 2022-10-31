@@ -1,0 +1,2 @@
+Target_table,Target_language,Input_files,Tuning_parameter,Truncate_flag,Drop_flag,Table_names_to_support_multiple_env,slt_batch_name,slt_task_name
+work_stream,trgt_table,impala,"input_file_1,input_file_2","tuning_prmtr_1,tning_prmtr_2",Y,N,"tble_1,tble_2",slt batch name,slt task name

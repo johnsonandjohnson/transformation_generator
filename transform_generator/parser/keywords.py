@@ -1,0 +1,2 @@
+def keywords():
+    return {'location'}

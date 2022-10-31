@@ -1,0 +1,2 @@
+target_table,target_type,target_language,input_files,dependencies,tuning_parameter,load_type
+TEST.CYCLIC_DEPENDENCY_DIRECT_CFG_TGT,,databricks,"mapping_test_file_cycle_direct_cfg_tgt.csv",TEST.CYCLIC_DEPENDENCY_DIRECT_CFG_SRC,,,
