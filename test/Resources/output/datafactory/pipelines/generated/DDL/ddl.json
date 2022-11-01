@@ -1,0 +1,42 @@
+{
+    "name": "ddl",
+    "properties": {
+        "activities": [
+            {
+                "name": "positive_cases_ddl",
+                "type": "ExecutePipeline",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "positive_cases_ddl",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            }
+        ],
+        "parameters": {
+            "processing_date": {
+                "type": "String",
+                "defaultValue": "yyyy-MM-dd"
+            }
+        },
+        "variables": {
+            "var_processing_date": {
+                "type": "String"
+            }
+        },
+        "folder": {
+            "name": "DDL"
+        },
+        "annotations": []
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

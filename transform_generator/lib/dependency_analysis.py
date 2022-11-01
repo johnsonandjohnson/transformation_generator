@@ -371,7 +371,6 @@ def get_dependency_graph_for_modules(config_dependency_graph: Dict[str, Set[str]
     module_dependency_graph = {}
 
     for config_filename, dependencies in config_dependency_graph.items():
-        module_dependencies = set()
         if database_variables:
             filename = (config_filename.replace(database_param_prefix,
                                                 database_param_prefix + '_config') + '.csv').replace('-', '.')
@@ -379,14 +378,16 @@ def get_dependency_graph_for_modules(config_dependency_graph: Dict[str, Set[str]
             filename = ('config_' + config_filename + '.csv').replace('-', '.')
 
         module_name = project_config[filename].group_name + '_transformations'
+        module_name_key = module_name
+        if database_variables:
+            module_name_key = database_param_prefix + '_' + module_name
+        module_dependencies = module_dependency_graph.get(module_name_key, set())
+
         for dependency in dependencies:
             dependency_module_name = get_new_dependency_from_dependency(dependency, module_name, project_config,
                                                                         database_param_prefix, database_variables)
             if dependency_module_name:
                 module_dependencies.add(dependency_module_name)
 
-        if database_variables:
-            module_dependency_graph[database_param_prefix + '_' + module_name] = module_dependencies
-        else:
-            module_dependency_graph[module_name] = module_dependencies
+        module_dependency_graph[module_name_key] = module_dependencies
     return module_dependency_graph
