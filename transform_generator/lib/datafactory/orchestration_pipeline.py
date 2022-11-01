@@ -1,15 +1,13 @@
 import collections
 import json
-import shutil
 from os import path, makedirs, remove
-from typing import Set, List
+from typing import Set
 
 from transform_generator.lib.logging import get_logger
 from transform_generator.lib.config import get_new_config_structures, get_configs_mappings_from_data_mappings
 from transform_generator.lib.dependency_analysis import get_dependency_graph_for_configs, \
     get_dependency_graph_for_modules
 from transform_generator.lib.datafactory.pipeline import generate_main_adf_pipeline
-from transform_generator.reader.project_config_reader import read_project_config_csvs
 
 from transform_generator.project import Project
 

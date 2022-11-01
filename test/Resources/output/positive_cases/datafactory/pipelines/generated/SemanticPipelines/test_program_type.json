@@ -1,0 +1,43 @@
+{
+    "name": "test_program_type",
+    "properties": {
+        "activities": [
+            {
+                "name": "TEST-PROGRAM_TARGET_TYPE",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "7.00:00:00",
+                    "retry": 2,
+                    "retryIntervalInSeconds": 180,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/cicd/path/to/databricks/notebook",
+                    "baseParameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@pipeline().parameters.processing_date"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "HighConCluster",
+                    "type": "LinkedServiceReference"
+                }
+            }
+        ],
+        "parameters": {
+            "processing_date": {
+                "type": "String"
+            }
+        },
+        "annotations": [],
+        "folder": {
+            "name": "SemanticPipelines"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

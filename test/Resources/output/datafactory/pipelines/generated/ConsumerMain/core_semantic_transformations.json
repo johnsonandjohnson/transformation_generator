@@ -1,0 +1,62 @@
+{
+    "name": "core_semantic_transformations",
+    "properties": {
+        "activities": [
+            {
+                "name": "set_processing_date",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "var_processing_date",
+                    "value": {
+                        "value": "@if(equals(pipeline().parameters.processing_date, 'yyyy-MM-dd'),formatDateTime(convertTimeZone(utcnow(),'UTC','Eastern Standard Time'), 'yyyy-MM-dd'),trim(pipeline().parameters.processing_date))",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "positive_cases_transformations",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "set_processing_date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "positive_cases_transformations",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true,
+                    "parameters": {
+                        "processing_date": {
+                            "type": "Expression",
+                            "value": "@variables('var_processing_date')"
+                        }
+                    }
+                }
+            }
+        ],
+        "parameters": {
+            "processing_date": {
+                "type": "String",
+                "defaultValue": "yyyy-MM-dd"
+            }
+        },
+        "variables": {
+            "var_processing_date": {
+                "type": "String"
+            }
+        },
+        "folder": {
+            "name": "ConsumerMain"
+        },
+        "annotations": []
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}
