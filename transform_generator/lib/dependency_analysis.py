@@ -132,13 +132,12 @@ def get_single_config_table_dependencies(
     for table_dependency in config.dependencies.upper().split(','):
         if table_dependency in config_filename_by_target_table:
             src_config_filename = config_filename_by_target_table[table_dependency]
-            if modules and (project_config[src_config_filename].group_name not in modules or project_config[
-                    config_filename].group_name not in modules):
-                break
-            src_config_filename = rename_adf_config_activities(src_config_filename)
-            tgt_config_filename = rename_adf_config_activities(config_filename)
-            if tgt_config_filename != src_config_filename:
-                dependency_edges.add((src_config_filename, tgt_config_filename))
+            if modules and project_config[src_config_filename].group_name in modules and project_config[
+                    config_filename].group_name in modules:
+                src_config_filename = rename_adf_config_activities(src_config_filename)
+                tgt_config_filename = rename_adf_config_activities(config_filename)
+                if tgt_config_filename != src_config_filename:
+                    dependency_edges.add((src_config_filename, tgt_config_filename))
 
     return dependency_edges
 
