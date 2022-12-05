@@ -1,0 +1,10 @@
+TABLE NAME,TABLE BUSINESS NAME,COLUMN NAME,COLUMN DATA TYPE,COLUMN NULLABLE,COLUMN BUSINESS DESC,PARTITION KEY,PARTITION DATA TYPE,PARTITION COMMENT,TABLE BUSINESS DESC
+Address,,AddressID,INTEGER,False,,,,,
+Address,,AddressLine1,String,False,,,,,
+Address,,AddressLine2,String,True,,,,,
+Address,,City,String,False,,,,,
+Address,,StateProvince,String,False,,,,,
+Address,,CountryRegion,String,False,,,,,
+Address,,PostalCode,String,False,,,,,
+Address,,rowguid,UNIQUEIDENTIFIER,False,,,,,
+Address,,ModifiedDate,DATETIME,False,,,,,

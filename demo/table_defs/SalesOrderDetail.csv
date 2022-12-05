@@ -1,0 +1,10 @@
+TABLE NAME,TABLE BUSINESS NAME,COLUMN NAME,COLUMN DATA TYPE,COLUMN NULLABLE,COLUMN BUSINESS DESC,PARTITION KEY,PARTITION DATA TYPE,PARTITION COMMENT,TABLE BUSINESS DESC
+SalesOrderDetail,,SalesOrderID,INTEGER,False,,,,,
+SalesOrderDetail,,SalesOrderDetailID,INTEGER,False,,,,,
+SalesOrderDetail,,OrderQty,SMALLINT,False,,,,,
+SalesOrderDetail,,ProductID,INTEGER,False,,,,,
+SalesOrderDetail,,UnitPrice,MONEY,False,,,,,
+SalesOrderDetail,,UnitPriceDiscount,MONEY,False,,,,,
+SalesOrderDetail,,LineTotal,"NUMERIC(38, 6)",False,,,,,
+SalesOrderDetail,,rowguid,UNIQUEIDENTIFIER,False,,,,,
+SalesOrderDetail,,ModifiedDate,DATETIME,False,,,,,

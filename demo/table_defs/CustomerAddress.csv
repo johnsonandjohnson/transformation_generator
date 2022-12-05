@@ -1,0 +1,6 @@
+TABLE NAME,TABLE BUSINESS NAME,COLUMN NAME,COLUMN DATA TYPE,COLUMN NULLABLE,COLUMN BUSINESS DESC,PARTITION KEY,PARTITION DATA TYPE,PARTITION COMMENT,TABLE BUSINESS DESC
+CustomerAddress,,CustomerID,INTEGER,False,,,,,
+CustomerAddress,,AddressID,INTEGER,False,,,,,
+CustomerAddress,,AddressType,String,False,,,,,
+CustomerAddress,,rowguid,UNIQUEIDENTIFIER,False,,,,,
+CustomerAddress,,ModifiedDate,DATETIME,False,,,,,

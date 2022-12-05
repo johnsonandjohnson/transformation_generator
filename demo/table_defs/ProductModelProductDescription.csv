@@ -1,0 +1,6 @@
+TABLE NAME,TABLE BUSINESS NAME,COLUMN NAME,COLUMN DATA TYPE,COLUMN NULLABLE,COLUMN BUSINESS DESC,PARTITION KEY,PARTITION DATA TYPE,PARTITION COMMENT,TABLE BUSINESS DESC
+ProductModelProductDescription,,ProductModelID,INTEGER,False,,,,,
+ProductModelProductDescription,,ProductDescriptionID,INTEGER,False,,,,,
+ProductModelProductDescription,,Culture,"NCHAR(6) COLLATE ""SQL_Latin1_General_CP1_CI_AS""",False,,,,,
+ProductModelProductDescription,,rowguid,UNIQUEIDENTIFIER,False,,,,,
+ProductModelProductDescription,,ModifiedDate,DATETIME,False,,,,,

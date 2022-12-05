@@ -1,0 +1,6 @@
+TABLE NAME,TABLE BUSINESS NAME,COLUMN NAME,COLUMN DATA TYPE,COLUMN NULLABLE,COLUMN BUSINESS DESC,PARTITION KEY,PARTITION DATA TYPE,PARTITION COMMENT,TABLE BUSINESS DESC
+ProductModel,,ProductModelID,INTEGER,False,,,,,
+ProductModel,,Name,String,False,,,,,
+ProductModel,,CatalogDescription,XML,True,,,,,
+ProductModel,,rowguid,UNIQUEIDENTIFIER,False,,,,,
+ProductModel,,ModifiedDate,DATETIME,False,,,,,
