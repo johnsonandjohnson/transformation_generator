@@ -1,2 +1,2 @@
 config_filename,group_name,schedule_frequency,schedule_days,parallel_db_name,base_path,notebooks_to_execute,cluster_name,ddl_wrapper_script,sequence
-vGetAllCategories-null-parents.csv,products,daily,,,,,,,
+product_views.csv,products,daily,,,,,,,
