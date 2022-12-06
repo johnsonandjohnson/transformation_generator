@@ -1,2 +1,2 @@
 target_table,target_type,target_language,input_files,dependencies,tuning_parameter,load_type
-vGetAllCategories,view,databricks,"vGetAllCategories-null-parents.csv",,,
+SalesLT.vGetAllCategories,table,databricks,"vGetAllCategories-null-parents.csv",,,
