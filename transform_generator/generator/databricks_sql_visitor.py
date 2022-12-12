@@ -3,12 +3,9 @@ from typing import Optional
 from transform_generator.lib.sql_scripts import get_db_table_name
 from transform_generator.parser.ast.aliased_result_col import AliasedResultCol
 from transform_generator.parser.ast.bin_op import BinOp
-from transform_generator.parser.ast.paren_exp import ParenExp
 from transform_generator.parser.ast.case import Case
 from transform_generator.parser.ast.cast import Cast
 from transform_generator.parser.ast.field import Field
-from transform_generator.parser.ast.select_query import SelectQuery
-from transform_generator.parser.ast.from_clause import FromClause
 from transform_generator.parser.ast.function_call import FunctionCall
 from transform_generator.parser.ast.integer_literal import IntegerLiteral
 from transform_generator.parser.ast.string_literal import StringLiteral

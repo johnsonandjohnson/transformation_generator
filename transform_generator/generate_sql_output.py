@@ -17,6 +17,7 @@ from transform_generator.lib.logging import get_logger
 from transform_generator.lib.sql_scripts import generate_sql_scripts, get_db_table_name
 from transform_generator.reader.table_definition_reader import get_table_definition
 from transform_generator.PathParameters import PathParameters
+from project_group import load_project_group
 
 logger = get_logger(__name__)
 
@@ -100,6 +101,11 @@ def generate_sql_output(config_path: str, schema_path: str, mapping_sheet_path: 
         flags are Y
     @param external_module_config_paths: A string of semicolon (;) delimited paths to external module config directories
     """
+
+    project_groups = []
+    for project_config_path in project_config_paths:
+        project_groups.append(load_project_group(project_config_path))
+
 
     config_by_mapping_filename, config_filename_by_target_table, configs_by_config_filename, database_variables, \
         project_config, mappings_by_mapping_filename = get_config_structures(config_path, mapping_sheet_path,
