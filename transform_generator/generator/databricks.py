@@ -4,6 +4,7 @@ from transform_generator.lib.data_mapping import DataMapping
 from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.project import Project
 
+
 class DataBricksNotebookGenerator:
 
     def generate_notebooks(self, projects: list[Project]):
@@ -15,15 +16,20 @@ class DataBricksNotebookGenerator:
 
                 # We want to process only 'table' type mappings, and to group them by target table name
                 # so that we can output all transformations for a given target table into a single notebook.
-                sorted_mappings = sorted(mapping_group.data_mappings, key=lambda m: m.table_name)
-                table_only_mappings = (m for m in sorted_mappings if m.config_entry.target_type.lower() == 'table')
-                mappings_by_target_table = groupby(table_only_mappings, key=lambda m: m.table_name)
+                table_only_mappings = (m for m in mapping_group.data_mappings
+                                       if m.config_entry.target_type.lower() == 'table')
+                sorted_mappings = sorted(table_only_mappings, key=lambda m: m.table_name)
+                mappings_by_target_table = groupby(sorted_mappings, key=lambda m: m.table_name)
 
                 for target_table, mapping in mappings_by_target_table:
                     self.generate_notebook(mapping)
 
+    def _notebook_preamble(self, file, project, data_mapping_group, data_mapping):
+        pass
+
     def generate_notebook(self, data_mappings: list[DataMapping]):
         pass
+        self._notebook_preamble()
         # Open file with appropriate file name
 
         # Generate widgets, preambles, etc, based on config (config is on data mapping object)

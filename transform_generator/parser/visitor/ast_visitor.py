@@ -88,6 +88,9 @@ class AstVisitor(ABC):
     def visit_unary_exp(self, unary_exp: UnaryExp):
         unary_exp.exp.accept(self)
 
+    def visit_not_exp(self, unary_exp: UnaryExp):
+        pass
+
     def visit_null_literal(self, null_literal: NullLiteral):
         pass
 
@@ -128,5 +131,5 @@ class AstVisitor(ABC):
         for field in window_function_call.partition_by:
             field.accept(self)
 
-        for field in window_function_call.order_by:
+        for field, _ in window_function_call.order_by:
             field.accept(self)

@@ -1,4 +1,4 @@
-from os.path import join
+from os.path import join, exists
 from typing import List
 
 from transform_generator.project import Project, load_project
@@ -24,7 +24,6 @@ def load_project_group(project_config_path: str, project_base_path: str) -> List
         entries.append(entry)
         entries_by_group_name[entry.group_name] = entries
 
-    entries_by_group_name.pop('ciw', None)  # temp; no config dir in ciw repo
-
     return [load_project(join(project_base_path, entries[0].group_name), entries[0].group_name, entries)
-            for entries in entries_by_group_name.values()]
+            for entries in entries_by_group_name.values()
+            if exists(join(project_base_path, entries[0].group_name, 'config'))]
