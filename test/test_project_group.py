@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from transform_generator.project_group import load_project_group
+from transform_generator.plugin.loader import get_plugin_loader
 
 
 class TestProjectGroup(unittest.TestCase):
@@ -12,7 +12,8 @@ class TestProjectGroup(unittest.TestCase):
                                            'positive_cases',
                                            'project_config',
                                            'project_config_test.csv')
+        project_loader = get_plugin_loader().project_group_loader()
 
-        project_group = load_project_group(project_config_path, TestProjectGroup.resources_folder)
+        project_group = project_loader.load_project_group(project_config_path, TestProjectGroup.resources_folder)
 
         print(project_group)

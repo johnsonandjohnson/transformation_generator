@@ -16,8 +16,6 @@ from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.lib.logging import get_logger
 from transform_generator.lib.sql_scripts import generate_sql_scripts, get_db_table_name
 from transform_generator.reader.table_definition_reader import get_table_definition
-from transform_generator.PathParameters import PathParameters
-from project_group import load_project_group
 
 logger = get_logger(__name__)
 

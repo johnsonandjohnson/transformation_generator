@@ -13,7 +13,7 @@ from transform_generator.generate_sql_output import generate_sql_output
 from transform_generator.lib.datafactory.orchestration_pipeline import generate_orchestration_pipeline
 from transform_generator.lib.logging import get_logger
 from transform_generator.lib.utils import clear_dir
-from transform_generator.project_group import load_project_group
+from transform_generator.plugin.loader import get_plugin_loader
 
 logger = get_logger(__name__)
 
@@ -37,7 +37,9 @@ def generate_and_compare(project_config_dir: str, actual_output_dir: str, expect
     if len(project_config_file_list) != 1:
         raise ValueError('The project_config folder should contain only 1 csv file: project config')
     project_config_file_path = os.path.join(project_config_dir, project_config_file_list[0])
-    project_group = load_project_group(project_config_file_path, project_base_dir)
+
+    proj_grp_loader = get_plugin_loader().project_group_loader()
+    project_group = proj_grp_loader.load_project_group(project_config_file_path, project_base_dir)
     databricks_folder_location = '/Shared/cicd'
     databricks_param_prefix = 'parameterization'
     external_module_config_paths = ''

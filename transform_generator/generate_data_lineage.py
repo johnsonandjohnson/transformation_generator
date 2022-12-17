@@ -3,7 +3,7 @@ from transform_generator.lib.config import get_new_config_structures
 from transform_generator.lib.dependency_analysis import get_table_dependency_edges_from_configs, \
     get_field_dependency_edges_from_configs, build_dependency_graph, get_all_upstream_tables, get_all_downstream_tables
 from transform_generator.project import Project
-from transform_generator.project_group import load_project_group
+from transform_generator.plugin.loader import get_plugin_loader
 from transform_generator.writer.dependency_writer import write_dependency
 from os import path, makedirs
 import csv
@@ -72,5 +72,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', help='Base output directory for SQL files and Bash scripts')
     args = parser.parse_args()
 
-    project_group = load_project_group(args.project_paths, args.project_base_dir)
+    project_loader = get_plugin_loader().project_group_loader()
+    project_group = project_loader.load_project_group(args.project_paths, args.project_base_dir)
+
     generate_data_lineage(project_group, args.project_paths, args.output)

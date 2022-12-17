@@ -1,7 +1,7 @@
 import argparse
 
 from transform_generator.lib.datafactory.orchestration_pipeline import generate_orchestration_pipeline
-from transform_generator.project_group import load_project_group
+from transform_generator.plugin.loader import get_plugin_loader
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process data mapping files.')
@@ -15,7 +15,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    project_group = load_project_group(args.project_config_path, args.repository_dir)
+    project_loader = get_plugin_loader().project_group_loader()
+    project_group = project_loader.load_project_group(args.project_paths, args.project_base_dir)
 
     generate_orchestration_pipeline(project_group, args.orchestration_output_dir,
                                     args.project_config_path, args.database_param_prefix,

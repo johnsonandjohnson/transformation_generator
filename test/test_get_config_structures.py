@@ -2,7 +2,7 @@ import os
 import unittest
 
 from transform_generator.lib.config import get_config_structures, get_new_config_structures
-from transform_generator.project_group import load_project_group
+from transform_generator.plugin.loader import get_plugin_loader
 
 
 def sort_dictionary(dict_to_sort):
@@ -22,8 +22,8 @@ class TestGetConfig(unittest.TestCase):
         project_config_path = os.path.join(TestGetConfig.positive_cases_folder, 'project_config',
                                            'project_config_test.csv')
         database_param_prefix = ''
-
-        project_group = load_project_group(project_config_path, TestGetConfig.resources_folder)
+        proj_grp_loader = get_plugin_loader().project_group_loader()
+        project_group = proj_grp_loader.load_project_group(project_config_path, TestGetConfig.resources_folder)
 
         cfg_by_mpg_filename, cfg_filename_by_tgt_tbl, cfg_by_cfg_filename, database_vars, generator_cfg, \
             mpg_by_mpg_filename = get_config_structures(config_path, mapping_sheet_path, database_param_prefix,

@@ -3,7 +3,8 @@ import unittest
 from os.path import join
 
 from transform_generator.lib import mapping, config
-from transform_generator.data_mapping_group import DataMappingGroup, load_mapping_group
+from transform_generator.data_mapping_group import DataMappingGroup
+from transform_generator.plugin.loader import get_plugin_loader
 from transform_generator.reader.config_reader import read_config_csv
 
 
@@ -16,7 +17,8 @@ class TestMappingGroup(unittest.TestCase):
                                          'config_test_file_for_mappings.csv')
 
         config_entries = read_config_csv(mapping_group_config_path)
-        project: DataMappingGroup = load_mapping_group(TestMappingGroup.pos_cases_resources_folder,
+        proj_grp_loader = get_plugin_loader().project_group_loader()
+        project: DataMappingGroup = proj_grp_loader.load_mapping_group(TestMappingGroup.pos_cases_resources_folder,
                                                        mapping_group_config_path, config_entries)
 
         config_entries = config.read_config_csv(mapping_group_config_path)
