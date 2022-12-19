@@ -13,11 +13,7 @@ from transform_generator.generator.databricks_sql_visitor import DataBricksSqlVi
 from transform_generator.generator.sql_query_generator import SqlQueryGenerator
 
 
-def _alias_result_col(ast: TransformExp, column: str):
-    if type(ast.result_column) is not AliasedResultCol:
-        ast = TransformExp(AliasedResultCol(ast.result_column, column), ast.from_clause, ast.where_clause,
-                           ast.group_by_clause, ast.distinct)
-    return ast
+
 
 
 def generate_select_query(data_mapping: DataMapping, table_definition: TableDefinition, language: str = 'DATABRICKS',

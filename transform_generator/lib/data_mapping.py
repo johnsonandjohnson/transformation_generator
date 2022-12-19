@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Set
 
 from transform_generator.lib.config_entry import ConfigEntry
+from transform_generator.lib.table_definition import TableDefinition
 from transform_generator.parser.ast.transform_exp import TransformExp
 
 
@@ -14,6 +15,7 @@ class DataMapping:
     ast_by_target_column_name: dict[str, TransformExp]
     config_entry: ConfigEntry = None
     comment_by_target_column_name: dict[str, Optional[str]] = field(default_factory=dict)
+    table_definition: TableDefinition = None
 
     def __post_init__(self):
         # Dependencies can be reliably inferred from one on the from_clauses,

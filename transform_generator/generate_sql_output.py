@@ -15,6 +15,10 @@ from transform_generator.lib.dependency_analysis import get_table_dependency_edg
 from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.lib.logging import get_logger
 from transform_generator.lib.sql_scripts import generate_sql_scripts, get_db_table_name
+from transform_generator.plugin import loader
+from transform_generator.plugin.generate_action import GenerateFilesAction
+from transform_generator.plugin.generate_databricks_notebooks import GenerateDatabricksNotebooksAction
+from transform_generator.project import Project
 from transform_generator.reader.table_definition_reader import get_table_definition
 
 logger = get_logger(__name__)
@@ -83,6 +87,12 @@ def write_queries_to_files_azure(script_cells_by_target_table: Dict[str, List[st
     return filenames_by_target_table
 
 
+@GenerateFilesAction.register()
+def generate_notebbooks(project_group: list[Project], target_dir: str):
+    notebook_generator = GenerateDatabricksNotebooksAction()
+    notebook_generator.generate_files(project_group, target_dir)
+
+
 def generate_sql_output(config_path: str, schema_path: str, mapping_sheet_path: str, output_databricks: str,
                         output_datafactory: str, project_config_paths: str, folder_location: str,
                         database_param_prefix: str = '', external_module_config_paths: str = ''):
@@ -99,6 +109,9 @@ def generate_sql_output(config_path: str, schema_path: str, mapping_sheet_path: 
         flags are Y
     @param external_module_config_paths: A string of semicolon (;) delimited paths to external module config directories
     """
+    project_loader = loader.get_plugin_loader().project_group_loader()
+    project_group = project_loader.load_project_group()
+
     config_by_mapping_filename, config_filename_by_target_table, configs_by_config_filename, database_variables, \
         project_config, mappings_by_mapping_filename = get_config_structures(config_path, mapping_sheet_path,
                                                                              database_param_prefix,
