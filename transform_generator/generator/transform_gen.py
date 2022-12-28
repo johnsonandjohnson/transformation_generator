@@ -13,9 +13,6 @@ from transform_generator.generator.databricks_sql_visitor import DataBricksSqlVi
 from transform_generator.generator.sql_query_generator import SqlQueryGenerator
 
 
-
-
-
 def generate_select_query(data_mapping: DataMapping, table_definition: TableDefinition, language: str = 'DATABRICKS',
                           project_config: Dict[str, ProjectConfigEntry] = {},
                           config_filename_by_target_table: Dict[str, str] = {}, load_type: str = 'full') -> str:
@@ -31,6 +28,11 @@ def generate_select_query(data_mapping: DataMapping, table_definition: TableDefi
     @param load_type: Optional -- string of the load type (i.e. full or incremental), defaults to 'full'
     @return: A string of the generated select query
     """
+    def _alias_result_col(ast: TransformExp, column: str):
+        if type(ast.result_column) is not AliasedResultCol:
+            ast = TransformExp(AliasedResultCol(ast.result_column, column), ast.from_clause, ast.where_clause,
+                               ast.group_by_clause, ast.distinct)
+        return ast
     query = SelectQuery()
     for key, field in table_definition.non_partitioned_fields.items():
         if key in data_mapping.target_column_names:

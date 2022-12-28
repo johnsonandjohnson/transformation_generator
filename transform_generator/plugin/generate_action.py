@@ -2,13 +2,14 @@ from transform_generator.project import Project
 
 
 class GenerateFilesAction:
-    _registry = {}
+    _registry = []
 
     @classmethod
     def register(cls, *args):
         """Register a `generate_files` function  as a plug-in."""
         def decorator(fn):
-            cls.r[fn.__name__] = tuple(args)
+            fn._props = tuple(args)
+            cls._registry.append(fn)
             return fn
         return decorator
 
@@ -28,5 +29,8 @@ class GenerateFilesAction:
 
         pass
 
-
+    @classmethod
+    def generate_all(cls, project_group: list[Project], output_dir: str):
+        for fn in cls._registry:
+            fn(project_group, output_dir)
 

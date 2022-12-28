@@ -60,8 +60,8 @@ def generate_and_compare(project_config_dir: str, actual_output_dir: str, expect
                                               actual_output_project_dir, actual_output_project_dir,
                                               databricks_folder_location, external_module_config_paths)
         generate_ddl_output(paths_data_object, databricks_param_prefix)
-        generate_sql_output(config_path, schema_path, mapping_sheet_path, actual_output_project_dir,
-                            actual_output_project_dir, project_config_file_path, databricks_folder_location,
+        generate_sql_output(project_group, actual_output_project_dir,
+                            actual_output_project_dir, databricks_folder_location,
                             databricks_param_prefix)
 
     generate_orchestration_pipeline(project_group, actual_output_dir, project_config_file_path,

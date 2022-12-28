@@ -102,8 +102,8 @@ class DcProjectLoader(ProjectLoader):
         table_defs = (read_table_definition(table_path) for table_path in table_file_names)
         tables_by_db_table_name = {t.table_name: t for t in table_defs}
 
-        for mapping in mapping_filenames.values():
-            if mapping.table_name_qualified() in tables_by_db_table_name:
+        for mapping in mappings_by_filename.values():
+            if mapping.table_name_qualified in tables_by_db_table_name:
                 mapping.table_definition = tables_by_db_table_name[mapping.table_name_qualified()]
 
         parent_dir, proj_dir = split(mapping_group_config_file_path)
