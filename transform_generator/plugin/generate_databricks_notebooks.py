@@ -19,12 +19,17 @@ from transform_generator.project import Project
 class GenerateDatabricksNotebooksAction(GenerateFilesAction):
     def __init__(self):
         self._parallel_db_names_by_db_table_name = None
+        self.__file = None
 
     def get_db_table_name(self, qualified_table_name: str) -> tuple[str, str]:
         db, table = qualified_table_name.split(".")
         if qualified_table_name in self._parallel_db_names_by_db_table_name:
             return self._parallel_db_names_by_db_table_name[qualified_table_name], table
         return db, table
+
+    def _write(self, data: str):
+        self.__file.write(data)
+
 
     def generate_files(self, projects: list[Project], target_output_dir: str):
         modules = set()
@@ -63,6 +68,12 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
             return self.create_sql_widget(sorted(self._parallel_db_names_by_db_table_name.values()))
         return preamble
 
+    def _notebook_body(self,
+                       data_mappings: list[DataMapping],
+                       mapping_group_config: ProjectConfigEntry
+                       ):
+        pass
+
     def _notebook_epilogue(self,
                            data_mappings: list[DataMapping],
                            mapping_group_config: ProjectConfigEntry):
@@ -81,17 +92,14 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
                           target_output_dir: str,
                           mapping_group_config: ProjectConfigEntry):
         with open(join(target_output_dir, data_mappings[0].table_name_qualified + ".sql"), "w") as f:
-            queries = [self.generate_query(mapping) for mapping in data_mappings]
+            self.__file = f
 
-            preamble = self._notebook_prologue()
-            if preamble:
-                f.write(preamble)
+            self._notebook_prologue()
 
-            f.write('\n\n-- COMMAND --\n\n'.join(queries))
+            self._notebook_body()
 
-            footer = self._notebook_epilogue()
-            if footer:
-                f.write(footer)
+            self._notebook_epilogue()
+        self.__file = None
 
     def generate_query(self, mapping: DataMapping) -> str:
         def _alias_result_col(ast: TransformExp, column: str):
@@ -150,3 +158,19 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
     @staticmethod
     def notebook_name(mapping: DataMapping) -> str:
         return mapping.table_name_qualified
+
+
+class GenerateTransformationNotebooks(GenerateDatabricksNotebooksAction):
+    def _notebook_body(self,
+                       data_mappings: list[DataMapping],
+                       mapping_group_config: ProjectConfigEntry
+                       ):
+        queries = [self.generate_query(mapping) for mapping in data_mappings]
+
+        self._write('\n\n-- COMMAND --\n\n'.join(queries))
+
+class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksAction):
+    def _notebook_body(self,
+                       data_mappings: list[DataMapping],
+                       mapping_group_config: ProjectConfigEntry):
+        pass
