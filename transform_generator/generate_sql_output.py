@@ -3,6 +3,7 @@ import json
 from os import path, makedirs
 from typing import Dict, List, Tuple
 
+from transform_generator import executor
 from transform_generator.lib.config import get_config_structures
 from transform_generator.lib.data_mapping import DataMapping
 from transform_generator.lib.config_entry import ConfigEntry
@@ -14,26 +15,15 @@ from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.lib.logging import get_logger
 from transform_generator.lib.sql_scripts import generate_sql_scripts, get_db_table_name
 from transform_generator.plugin import loader
+from transform_generator.plugin.dc_databricks_notebooks import GenerateDcTransformationNotebooks, \
+    GenerateDcTableViewNotebooks
 from transform_generator.plugin.generate_action import GenerateFilesAction
-from transform_generator.plugin.generate_databricks_notebooks import GenerateDatabricksNotebooksAction
+from transform_generator.plugin.generate_databricks_notebooks import GenerateTransformationNotebooks, \
+    GenerateTableViewCreateNotebooks
 from transform_generator.project import Project
 from transform_generator.reader.table_definition_reader import get_table_definition
 
 logger = get_logger(__name__)
-
-
-
-@GenerateFilesAction.register("databricks", output_sub_dir="xyz")
-def generate_notebooks(project_group: list[Project], target_dir: str):
-    notebook_generator = GenerateDatabricksNotebooksAction()
-    notebook_generator.generate_files(project_group, target_dir)
-
-@GenerateFilesAction.register("pandas")
-def generate_pandas(project_group: list[Project], target_dir: str):
-    notebook_generator = GeneratePandasFilesAction()
-    notebook_generator.generate_files(project_group, target_dir)
-
-
 
 def generate_sql_output(project_group: list[Project], output_databricks: str,
                         output_datafactory: str, folder_location: str,
@@ -51,8 +41,11 @@ def generate_sql_output(project_group: list[Project], output_databricks: str,
         flags are Y
     @param external_module_config_paths: A string of semicolon (;) delimited paths to external module config directories
     """
-
-    GenerateFilesAction.generate_all(project_group, output_databricks)
+    dml_stage = GenerateDcTransformationNotebooks("dml")
+    ddl_stage = GenerateDcTableViewNotebooks("ddl")
+    executor.execute_stages(project_group,
+                            [dml_stage, ddl_stage],
+                            target_output_dir=output_databricks)
 
     # config_by_mapping_filename, config_filename_by_target_table, configs_by_config_filename, database_variables, \
     #     project_config, mappings_by_mapping_filename = get_config_structures(config_path, mapping_sheet_path,

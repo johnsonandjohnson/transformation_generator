@@ -1,5 +1,6 @@
 from typing import Optional
 
+from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.lib.sql_scripts import get_db_table_name
 from transform_generator.parser.ast.aliased_result_col import AliasedResultCol
 from transform_generator.parser.ast.bin_op import BinOp
@@ -13,7 +14,9 @@ from transform_generator.parser.visitor.generic_sql_visitor import GenericSqlVis
 
 
 class DataBricksSqlVisitor(GenericSqlVisitor):
-    def __init__(self, load_type, project_config={}, config_filename_by_target_table={},
+    def __init__(self,
+                 load_type,
+                 mapping_group_config_entry: ProjectConfigEntry=None,
                  comment_by_target_column_name=dict[str, Optional[str]]):
         """
         Initializes a DataBricksSqlVisitor
@@ -29,8 +32,7 @@ class DataBricksSqlVisitor(GenericSqlVisitor):
         """
         super().__init__()
         self._load_type = load_type
-        self._project_config = project_config
-        self._config_filename_by_target_table = config_filename_by_target_table
+        self._mapping_group_config_entry = mapping_group_config_entry
         self._inside_case_rewrite = False
         self._inside_collect_list_function_rewrite = False
         self._inside_isnull_function_rewrite = False
@@ -120,8 +122,8 @@ class DataBricksSqlVisitor(GenericSqlVisitor):
             super().visit_function_call(function_call)
 
     def _get_database_name(self, database_name: str, table_name: str) -> str:
-        database_name, table_name = get_db_table_name(database_name, table_name, self._project_config,
-                                                      self._config_filename_by_target_table)
+        if self._mapping_group_config_entry.parallel_db_name != '':
+            database_name = '${' + self._mapping_group_config_entry.parallel_db_name + '_db}'
         return super()._get_database_name(database_name, table_name)
 
     def _after_where_clause(self, select_query):

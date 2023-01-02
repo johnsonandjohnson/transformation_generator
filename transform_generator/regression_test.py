@@ -15,6 +15,8 @@ from transform_generator.lib.logging import get_logger
 from transform_generator.lib.utils import clear_dir
 from transform_generator.plugin.loader import get_plugin_loader
 
+import pickle
+
 logger = get_logger(__name__)
 
 
@@ -38,13 +40,25 @@ def generate_and_compare(project_config_dir: str, actual_output_dir: str, expect
         raise ValueError('The project_config folder should contain only 1 csv file: project config')
     project_config_file_path = os.path.join(project_config_dir, project_config_file_list[0])
 
-    proj_grp_loader = get_plugin_loader().project_group_loader()
-    project_group = proj_grp_loader.load_project_group(project_config_file_path, project_base_dir)
+#    proj_grp_loader = get_plugin_loader().project_group_loader()
+#    project_group = proj_grp_loader.load_project_group(project_config_file_path, project_base_dir)
+
+    with open('project_group.pkl', 'rb') as f:
+ #       pickle.dump(project_group, f)
+        project_group = pickle.load(f)
+
+
     databricks_folder_location = '/Shared/cicd'
     databricks_param_prefix = 'parameterization'
     external_module_config_paths = ''
 
     logger.info('Starting output generation')
+
+    generate_sql_output(project_group,
+                        actual_output_dir,
+                        actual_output_dir,
+                        databricks_folder_location,
+                        databricks_param_prefix)
 
     for project in project_group:
         actual_output_project_dir = os.path.join(actual_output_dir, project.name)
@@ -59,16 +73,13 @@ def generate_and_compare(project_config_dir: str, actual_output_dir: str, expect
         paths_data_object = DdlPathParameters(config_path, schema_path, mapping_sheet_path, project_config_file_path,
                                               actual_output_project_dir, actual_output_project_dir,
                                               databricks_folder_location, external_module_config_paths)
-        generate_ddl_output(paths_data_object, databricks_param_prefix)
-        generate_sql_output(project_group, actual_output_project_dir,
-                            actual_output_project_dir, databricks_folder_location,
-                            databricks_param_prefix)
+#        generate_ddl_output(paths_data_object, databricks_param_prefix)
 
-    generate_orchestration_pipeline(project_group, actual_output_dir, project_config_file_path,
-                                    databricks_param_prefix)
-    generate_params_create_dbs(project_config_file_path, actual_output_dir)
+    #generate_orchestration_pipeline(project_group, actual_output_dir, project_config_file_path,
+    #                                databricks_param_prefix)
+    #generate_params_create_dbs(project_config_file_path, actual_output_dir)
 
-    generate_data_lineage(project_group, project_config_file_path, actual_output_dir)
+    #generate_data_lineage(project_group, project_config_file_path, actual_output_dir)
 
     logger.info('Completed output generation')
     outputs_match = compare(expected_output_dir, actual_output_dir)

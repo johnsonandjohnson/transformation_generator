@@ -16,6 +16,5 @@ from transform_generator.reader.table_definition_reader import read_table_defini
 class DataMappingGroup:
     name: str
     data_mappings: List[DataMapping]
-    tables_by_db_table_name: dict[str, TableDefinition]
     mapping_group_config: ProjectConfigEntry = None
     programs: List[ConfigEntry] = field(default_factory=list)

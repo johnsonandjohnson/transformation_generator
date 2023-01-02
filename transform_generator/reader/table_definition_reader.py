@@ -10,11 +10,11 @@ from transform_generator.lib.table_definition import TableDefinition
 logger = get_logger(__name__)
 
 
-def read_table_definition(schema_file_path):
+def read_table_definition(schema_file_path, db_name=None):
     if path.exists(schema_file_path + ".json"):
-        return read_table_definition_json(schema_file_path)
+        return read_table_definition_json(schema_file_path, db_name=db_name)
     else:
-        return read_table_definition_csv(schema_file_path)
+        return read_table_definition_csv(schema_file_path, db_name=db_name)
 
 
 def read_table_definition_json(schema_file_path, db_name=None):

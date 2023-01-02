@@ -5,6 +5,7 @@ from os.path import join, exists, isfile, split
 from transform_generator.data_mapping_group import DataMappingGroup
 from transform_generator.lib.config import get_config_by_mapping_filename
 from transform_generator.lib.config_entry import ConfigEntry
+from transform_generator.lib.logging import get_logger
 from transform_generator.lib.mapping import load_mappings
 from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.plugin.project_loader import ProjectLoader
@@ -14,6 +15,9 @@ from transform_generator.project import Project
 from transform_generator.reader.config_reader import read_config_csv
 from transform_generator.reader.project_config_reader import read_project_config_csvs
 from transform_generator.reader.table_definition_reader import read_table_definition
+
+
+logger = get_logger(__name__)
 
 
 class DcProjectLoader(ProjectLoader):
@@ -31,7 +35,9 @@ class DcProjectLoader(ProjectLoader):
         @param project_base_path: The path to the project base directory, which contains all project directories.
         @return: A Project Group containing all of the configured projects.
         """
+        logger.info('Loading project group from provide')
         cfg_entries = read_project_config_csvs(project_group_config_path.split(';'))
+
 
         # Exclude projects which have no 'config' folder
         filtered_mapping_group_cfg_entries = (e for e in cfg_entries.values()
@@ -97,14 +103,10 @@ class DcProjectLoader(ProjectLoader):
                         mappings_by_filename[input_file].config_entry = config_entry
 
         schema_directory = self.construct_directory_path(project_path, 'schema')
-        table_file_names = (join(schema_directory, entry.target_table)
-                            for entry in config_by_mapping_filename.values())
-        table_defs = (read_table_definition(table_path) for table_path in table_file_names)
-        tables_by_db_table_name = {t.table_name: t for t in table_defs}
 
         for mapping in mappings_by_filename.values():
-            if mapping.table_name_qualified in tables_by_db_table_name:
-                mapping.table_definition = tables_by_db_table_name[mapping.table_name_qualified()]
+            table_path = join(schema_directory, mapping.config_entry.target_table)
+            mapping.table_definition = read_table_definition(table_path, db_name=mapping.database_name)
 
         parent_dir, proj_dir = split(mapping_group_config_file_path)
         if proj_dir.lower() != 'generator':
@@ -116,7 +118,6 @@ class DcProjectLoader(ProjectLoader):
         return DataMappingGroup(
             name=name,
             data_mappings=sorted(mappings_by_filename.values()),
-            tables_by_db_table_name=tables_by_db_table_name,
             mapping_group_config=mapping_group_config
         )
 

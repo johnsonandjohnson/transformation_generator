@@ -1,25 +1,35 @@
 from itertools import groupby
-from os.path import join
+from os.path import join, split
 from typing import Optional
+from pathlib import Path
 
-from transform_generator.data_mapping_group import DataMappingGroup
+from transform_generator.executor import PipelineStage
 from transform_generator.generator.databricks_sql_visitor import DataBricksSqlVisitor
 from transform_generator.generator.sql_query_generator import SqlQueryGenerator
 from transform_generator.lib.data_mapping import DataMapping
 from transform_generator.lib.project_config_entry import ProjectConfigEntry
+from transform_generator.lib.table_definition import TableDefinition
 from transform_generator.parser.ast.aliased_result_col import AliasedResultCol
 from transform_generator.parser.ast.cast import Cast
 from transform_generator.parser.ast.null_literal import NullLiteral
 from transform_generator.parser.ast.select_query import SelectQuery
 from transform_generator.parser.ast.transform_exp import TransformExp
-from transform_generator.plugin.generate_action import GenerateFilesAction
 from transform_generator.project import Project
 
 
-class GenerateDatabricksNotebooksAction(GenerateFilesAction):
-    def __init__(self):
+class GenerateDatabricksNotebooksStage(PipelineStage):
+    def __init__(self, name: str):
+        super().__init__(name)
         self._parallel_db_names_by_db_table_name = None
         self.__file = None
+        self._config_filename_by_target_table = None
+
+    def execute(self, projects: list[Project], **kwargs):
+        self._config_filename_by_target_table = {m.config_entry.target_table: m.config_entry.key
+                                                 for p in projects
+                                                 for g in p.data_mapping_groups
+                                                 for m in g.data_mappings}
+        pass
 
     def get_db_table_name(self, qualified_table_name: str) -> tuple[str, str]:
         db, table = qualified_table_name.split(".")
@@ -30,43 +40,13 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
     def _write(self, data: str):
         self.__file.write(data)
 
-
-    def generate_files(self, projects: list[Project], target_output_dir: str):
-        modules = set()
-
-        # Collect all 'parallel_db_names' to create the SQL widgets in the preamble.
-        self._parallel_db_names_by_db_table_name = {m.table_name_qualified: g.mapping_group_config.parallel_db_name
-                                                    for p in projects
-                                                    for g in p.data_mapping_groups
-                                                    for m in g.data_mappings
-                                                    if g.mapping_group_config.parallel_db_name}
-        for project in projects:
-            for mapping_group in project.data_mapping_groups:
-                mapping_group_config = mapping_group.mapping_group_config
-                modules.add(mapping_group_config.group_name)
-
-                # We want to process only 'table' type mappings, and to group them by target table name
-                # so that we can output all transformations for a given target table into a single notebook.
-                table_only_mappings = (m for m in mapping_group.data_mappings
-                                       if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'})
-                sorted_mappings = sorted(table_only_mappings, key=lambda m: m.table_name)
-                mappings_by_target_table = groupby(sorted_mappings, key=lambda m: m.table_name)
-
-                for target_table, mappings in mappings_by_target_table:
-                    self.generate_notebook(list(mappings), target_output_dir, mapping_group_config)
+    def _end_cell(self):
+        self._write('\n-- COMMAND --\n\n')
 
     def _notebook_prologue(self,
                            data_mappings: list[DataMapping],
                            mapping_group_config: ProjectConfigEntry) -> Optional[str]:
-        preamble = ""
-        if mapping_group_config.notebooks_to_execute:
-            preamble += '%run\n' + '\n'.join(mapping_group_config.notebooks_to_execute.split(','))
-
-        if self._parallel_db_names_by_db_table_name.values():
-            if preamble:
-                preamble += '\n'
-            return self.create_sql_widget(sorted(self._parallel_db_names_by_db_table_name.values()))
-        return preamble
+        pass
 
     def _notebook_body(self,
                        data_mappings: list[DataMapping],
@@ -77,31 +57,31 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
     def _notebook_epilogue(self,
                            data_mappings: list[DataMapping],
                            mapping_group_config: ProjectConfigEntry):
-        load_synapse = any(True for d in data_mappings if d.config_entry.load_synapse == 'Y')
-        folder_path = ''
-        if mapping_group_config.group_name:
-            folder_path += '/' + mapping_group_config.group_name
 
-        if load_synapse:
-            db, table = self.get_db_table_name(data_mappings[0].table_name_qualified)
-            return self.create_synapse_execution(folder_path, db, table)
-        return None
+        pass
 
     def generate_notebook(self,
                           data_mappings: list[DataMapping],
-                          target_output_dir: str,
+                          target_file_output_path: str,
                           mapping_group_config: ProjectConfigEntry):
-        with open(join(target_output_dir, data_mappings[0].table_name_qualified + ".sql"), "w") as f:
+        tgt_dir, tgt_file = split(target_file_output_path)
+        tgt_path = Path(tgt_dir)
+        if not tgt_path.exists():
+            tgt_path.mkdir(parents=True)
+
+        with open(target_file_output_path, "w") as f:
             self.__file = f
 
-            self._notebook_prologue()
+            self._notebook_prologue(data_mappings, mapping_group_config)
 
-            self._notebook_body()
+            self._notebook_body(data_mappings, mapping_group_config)
 
-            self._notebook_epilogue()
+            self._notebook_epilogue(data_mappings, mapping_group_config)
         self.__file = None
 
-    def generate_query(self, mapping: DataMapping) -> str:
+    def generate_query(self,
+                       mapping: DataMapping,
+                       mapping_group_config: ProjectConfigEntry) -> str:
         def _alias_result_col(ast: TransformExp, column: str):
             if type(ast.result_column) is not AliasedResultCol:
                 ast = TransformExp(AliasedResultCol(ast.result_column, column), ast.from_clause, ast.where_clause,
@@ -125,8 +105,8 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
                 query.merge_transform_exp(TransformExp(AliasedResultCol(Cast(NullLiteral(), field.data_type), key)))
 
         if mapping.config_entry.target_language.lower() == 'databricks':
-            visitor = DataBricksSqlVisitor(cfg_entry.load_type, cfg_entry.project_config,
-                                           cfg_entry.config_filename_by_target_table,
+            visitor = DataBricksSqlVisitor(cfg_entry.load_type,
+                                           mapping_group_config,
                                            mapping.comment_by_target_column_name)
             query.accept(visitor)
             return visitor.sql_string
@@ -135,42 +115,145 @@ class GenerateDatabricksNotebooksAction(GenerateFilesAction):
             return query_generator.print_select(query)
         pass
 
-    def create_sql_widget(self, parallel_db_names: list[str]) -> str:
-        """
-        This function takes in the generator config file, loops through it, and extracts the variables that need to be
-        created as widgets for the database variables.
-        @param project_config: A dictionary with the config filename as the key and generator config entries as the values
-        @return: a string containing the widget text for the beginning of the sql files
-        """
-        widgets = set()
-        widgets.add('CREATE WIDGET TEXT processing_date DEFAULT \'\';')
-
-        for parallel_db_name in parallel_db_names:
-                widgets.add('CREATE WIDGET TEXT ' + parallel_db_name + '_db DEFAULT \'' + parallel_db_name + '\';')
-        widget_string = '\n'.join(widgets)
-        return widget_string
-
-    def create_synapse_execution(self, folder_location: str, database_name: str, table_name: str):
-        return f'%run {folder_location}/cons_digital_core/databricks/synapse/syn_load ' \
-               f'$src_table = "{table_name}" $tgt_table = "{table_name}" $tgt_schema = ' \
-               f'{database_name}'
-
     @staticmethod
     def notebook_name(mapping: DataMapping) -> str:
         return mapping.table_name_qualified
 
 
-class GenerateTransformationNotebooks(GenerateDatabricksNotebooksAction):
+class GenerateTransformationNotebooks(GenerateDatabricksNotebooksStage):
+    def execute(self, projects: list[Project], /, *, target_output_dir: str, **kwargs):
+        super().execute(projects, target_output_dir=target_output_dir, **kwargs)
+        modules = set()
+
+        # Collect all 'parallel_db_names' to create the SQL widgets in the preamble.
+
+        for project in projects:
+            for mapping_group in project.data_mapping_groups:
+                mapping_group_config = mapping_group.mapping_group_config
+                modules.add(mapping_group_config.group_name)
+
+                # We want to process only 'table' type mappings, and to group them by target table name
+                # so that we can output all transformations for a given target table into a single notebook.
+                table_only_mappings = (m for m in mapping_group.data_mappings
+                                       if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'})
+                sorted_mappings = sorted(table_only_mappings, key=lambda m: m.table_name)
+                mappings_by_target_table = groupby(sorted_mappings, key=lambda m: m.table_name)
+
+                for target_table, mappings_iter in mappings_by_target_table:
+                    mappings = list(mappings_iter)
+                    target_file_path = join(target_output_dir,
+                                            project.name,
+                                            'databricks',
+                                            'generated',
+                                            'dml',
+                                            mappings[0].table_name_qualified + '.sql')
+                    self.generate_notebook(mappings, target_file_path, mapping_group_config)
+
     def _notebook_body(self,
                        data_mappings: list[DataMapping],
                        mapping_group_config: ProjectConfigEntry
                        ):
-        queries = [self.generate_query(mapping) for mapping in data_mappings]
+        queries = [self.generate_query(mapping, mapping_group_config) for mapping in data_mappings]
 
         self._write('\n\n-- COMMAND --\n\n'.join(queries))
 
-class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksAction):
+
+class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.__type = None
+
+    def execute(self, projects: list[Project], /, target_output_dir: str, **kwargs):
+        super().execute(projects, target_output_dir=target_output_dir, **kwargs)
+        for project in projects:
+            for mapping_group in project.data_mapping_groups:
+                sorted_mappings = mapping_group.data_mappings
+                #sorted_mappings = sorted(mapping_group.data_mappings, key=lambda m: (m.config_entry.key,
+                #                                                                     m.table_name_qualified))
+                tables = [m for m in sorted_mappings
+                          if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'}]
+                views = [m for m in sorted_mappings
+                         if m.config_entry.target_type.lower() == 'view']
+
+                tables_by_config_key = groupby(tables, key=lambda m: m.config_entry.key)
+                views_by_config_key = groupby(views, key=lambda m: m.config_entry.key)
+
+                for config_key, mappings_iter in views_by_config_key:
+                    mappings = list(mappings_iter)
+                    if mappings:
+                        output_file_path = join(target_output_dir,
+                                                project.name,
+                                                'databricks',
+                                                'generated',
+                                                'ddl',
+                                                config_key.replace('.csv', '')) + '_views.sql'
+                        self.__type = 'view'
+                        self.generate_notebook(mappings, output_file_path, mapping_group.mapping_group_config)
+
+                for config_key, mappings_iter in tables_by_config_key:
+                    mappings = list(mappings_iter)
+                    if mappings:
+                        output_file_path = join(target_output_dir,
+                                                project.name,
+                                                'databricks',
+                                                'generated',
+                                                'ddl',
+                                                config_key.replace('.csv', '')) + '.sql'
+                        self.__type = 'table'
+                        self.generate_notebook(mappings, output_file_path, mapping_group.mapping_group_config)
+
     def _notebook_body(self,
                        data_mappings: list[DataMapping],
                        mapping_group_config: ProjectConfigEntry):
-        pass
+        mappings_by_target_name = groupby(data_mappings, key=lambda m: m.table_name)
+        if self.__type == 'view':
+            for target_view, mappings_iter in mappings_by_target_name:
+                mappings = list(mappings_iter)
+                self._write_ddl_view(mappings, mappings[0].table_definition, mapping_group_config)
+        elif self.__type == 'table':
+            for target_table, mappings_iter in mappings_by_target_name:
+                mappings = list(mappings_iter)
+                self._write_ddl_table(mappings[0].table_definition)
+
+    def _write_ddl_view(self,
+                        data_mappings: list[DataMapping],
+                        table_definition: TableDefinition,
+                        mapping_group_config: ProjectConfigEntry):
+        db, table = self.get_db_table_name(table_definition.database_name + "." + table_definition.table_name)
+        self._write(f'DROP VIEW IF EXISTS {db}.{table};\n\n')
+        self._write(f'CREATE VIEW  {db}.{table}\n(\n')
+
+        for field_name, field in table_definition.non_partitioned_fields.items():
+            self._write(f"\t{field_name} {self._sanitize_comment(field.column_description)}")
+        self._write('\n)\n')
+        self._write('AS\n')
+
+        queries = [self.generate_query(m, mapping_group_config) for m in data_mappings]
+
+        self._write(' UNION ALL '.join(queries) + ';')
+
+    def _write_ddl_table(self, table_definition: TableDefinition):
+        db, table = self.get_db_table_name(table_definition.database_name + "." + table_definition.table_name)
+        self._write(f'DROP TABLE IF EXISTS {db}.{table};\n\n')
+        self._write(f'CREATE TABLE {db}.{table}\n(\n')
+        first = True
+        for field_name, field in table_definition.non_partitioned_fields.items():
+            if not first:
+                self._write(',\n')
+            else:
+                first = False
+            self._write(f"\t{field_name} {field.data_type} {self._sanitize_comment(field.column_description)}")
+        self._write('\n)\n')
+
+    def _sanitize_comment(self, comment: str):
+        """
+        This comment standardizes comment strings
+        @param comment: String of the comment
+        @return: An updated comment with the appropriate length of characters and formatting
+        """
+        if comment == '':
+            return comment
+        # Note: 256-character limit set here
+        sanitized_comment = comment[0:255].replace("'", r"\'")
+
+        return f"'{sanitized_comment}'"

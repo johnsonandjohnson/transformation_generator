@@ -47,7 +47,8 @@ def generate_select_query(data_mapping: DataMapping, table_definition: TableDefi
             query.merge_transform_exp(TransformExp(AliasedResultCol(Cast(NullLiteral(), field.data_type), key)))
 
     if language.lower() == 'databricks':
-        visitor = DataBricksSqlVisitor(load_type, project_config, config_filename_by_target_table,
+        visitor = DataBricksSqlVisitor(load_type,
+                                       project_config[data_mapping.config_entry.key],
                                        data_mapping.comment_by_target_column_name)
         query.accept(visitor)
         return visitor.sql_string
