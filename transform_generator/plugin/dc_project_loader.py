@@ -90,7 +90,7 @@ class DcProjectLoader(ProjectLoader):
 
         config_by_mapping_filename = get_config_by_mapping_filename(configs_by_config_filename)
         mappings_by_filename = {}
-
+        ordered_mappings = []
         if config_by_mapping_filename:
             mapping_directory = self.construct_directory_path(project_path, 'mapping')
             mapping_filenames = list(config_by_mapping_filename.keys())
@@ -100,11 +100,16 @@ class DcProjectLoader(ProjectLoader):
             for config_entry in config_entries:
                 if config_entry.target_type != 'program':
                     for input_file in config_entry.input_files:
-                        mappings_by_filename[input_file].config_entry = config_entry
+                        mapping = mappings_by_filename[input_file]
+                        mapping.config_entry = config_entry
+
+                        # The mappings should be in the same order as the config entries in the file
+                        # to match previous behavior on digital core.
+                        ordered_mappings.append(mapping)
 
         schema_directory = self.construct_directory_path(project_path, 'schema')
 
-        for mapping in mappings_by_filename.values():
+        for mapping in ordered_mappings:
             table_path = join(schema_directory, mapping.config_entry.target_table)
             mapping.table_definition = read_table_definition(table_path, db_name=mapping.database_name)
 
@@ -117,7 +122,7 @@ class DcProjectLoader(ProjectLoader):
 
         return DataMappingGroup(
             name=name,
-            data_mappings=sorted(mappings_by_filename.values()),
+            data_mappings=ordered_mappings,
             mapping_group_config=mapping_group_config
         )
 

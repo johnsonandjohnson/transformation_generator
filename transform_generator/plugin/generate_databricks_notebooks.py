@@ -155,7 +155,7 @@ class GenerateTransformationNotebooks(GenerateDatabricksNotebooksStage):
                        ):
         queries = [self.generate_query(mapping, mapping_group_config) for mapping in data_mappings]
 
-        self._write('\n\n-- COMMAND --\n\n'.join(queries))
+        self._write('\n')
 
 
 class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
@@ -167,12 +167,9 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
         super().execute(projects, target_output_dir=target_output_dir, **kwargs)
         for project in projects:
             for mapping_group in project.data_mapping_groups:
-                sorted_mappings = mapping_group.data_mappings
-                #sorted_mappings = sorted(mapping_group.data_mappings, key=lambda m: (m.config_entry.key,
-                #                                                                     m.table_name_qualified))
-                tables = [m for m in sorted_mappings
+                tables = [m for m in mapping_group.data_mappings
                           if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'}]
-                views = [m for m in sorted_mappings
+                views = [m for m in mapping_group.data_mappings
                          if m.config_entry.target_type.lower() == 'view']
 
                 tables_by_config_key = groupby(tables, key=lambda m: m.config_entry.key)
@@ -206,12 +203,22 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
                        data_mappings: list[DataMapping],
                        mapping_group_config: ProjectConfigEntry):
         mappings_by_target_name = groupby(data_mappings, key=lambda m: m.table_name)
+        first = True
         if self.__type == 'view':
             for target_view, mappings_iter in mappings_by_target_name:
+                if not first:
+                    self._end_cell()
+                else:
+                    first = False
                 mappings = list(mappings_iter)
                 self._write_ddl_view(mappings, mappings[0].table_definition, mapping_group_config)
         elif self.__type == 'table':
             for target_table, mappings_iter in mappings_by_target_name:
+                if not first:
+                    self._write('\n')
+                    self._end_cell()
+                else:
+                    first = False
                 mappings = list(mappings_iter)
                 self._write_ddl_table(mappings[0].table_definition)
 
@@ -242,8 +249,14 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
                 self._write(',\n')
             else:
                 first = False
-            self._write(f"\t{field_name} {field.data_type} {self._sanitize_comment(field.column_description)}")
+            self._write(f"\t{field_name} {field.data_type}")
+            if field.column_description:
+                self._write(f" COMMENT {self._sanitize_comment(field.column_description)}")
         self._write('\n)\n')
+        self._write(f"COMMENT {self._sanitize_comment(table_definition.table_description)}\n" +
+                    'STORED AS PARQUET\n' +
+                    f"LOCATION '/mnt/dct/chdp/{table_definition.database_name.lower()}" +
+                    f"/{table_definition.table_name.lower()}';")
 
     def _sanitize_comment(self, comment: str):
         """

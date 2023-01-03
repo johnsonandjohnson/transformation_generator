@@ -40,12 +40,12 @@ def generate_and_compare(project_config_dir: str, actual_output_dir: str, expect
         raise ValueError('The project_config folder should contain only 1 csv file: project config')
     project_config_file_path = os.path.join(project_config_dir, project_config_file_list[0])
 
-#    proj_grp_loader = get_plugin_loader().project_group_loader()
-#    project_group = proj_grp_loader.load_project_group(project_config_file_path, project_base_dir)
+    proj_grp_loader = get_plugin_loader().project_group_loader()
+    project_group = proj_grp_loader.load_project_group(project_config_file_path, project_base_dir)
 
-    with open('project_group.pkl', 'rb') as f:
+ #   with open('project_group.pkl', 'rb') as f:
  #       pickle.dump(project_group, f)
-        project_group = pickle.load(f)
+ #       project_group = pickle.load(f)
 
 
     databricks_folder_location = '/Shared/cicd'
