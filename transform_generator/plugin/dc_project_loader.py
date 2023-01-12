@@ -71,9 +71,9 @@ class DcProjectLoader(ProjectLoader):
                     config_entries = read_config_csv(config_file_path)
                     data_mapping_group = self.load_mapping_group(project_path, config_file_path, config_entries,
                                                                  proj_cfg_entry)
-                    programs = self.load_programs(config_entries, project_path)
-                    if programs:
-                        data_mapping_group.programs = programs
+
+                    data_mapping_group.data_mappings.extend(self.load_programs(config_entries, project_path))
+
                     data_mapping_groups.append(data_mapping_group)
 
         return Project(name, data_mapping_groups)

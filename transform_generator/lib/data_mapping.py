@@ -15,6 +15,10 @@ class BaseMapping(ABC):
     config_entry: ConfigEntry
     table_definition: TableDefinition
 
+    @property
+    def table_name_qualified(self) -> Set[str]:
+        return self.database_name + "." + self.table_name
+
 
 @dataclass(order=True)
 class DataMapping(BaseMapping):
@@ -36,11 +40,10 @@ class DataMapping(BaseMapping):
         """
         return self.ast_by_target_column_name[target_column_name]
 
-    @property
-    def table_name_qualified(self) -> Set[str]:
-        return self.database_name + "." + self.table_name
-
 
 @dataclass(order=True)
 class ProgramMapping(BaseMapping):
+    def __post_init__(self):
+        if self.config_entry:
+            self.table_dependencies = self.config_entry.dependencies.split(',')
     pass

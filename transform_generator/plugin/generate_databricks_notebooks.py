@@ -242,7 +242,7 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
 
         queries = [self.generate_query(m, mapping_group_config) for m in data_mappings]
 
-        self._write(' UNION ALL '.join(queries) + ' )\n;')
+        self._write(' )\n UNION ALL ( '.join(queries) + ' )\n;')
 
     def _write_fields(self, fields: list[Field], datatype=True):
         first = True
@@ -254,7 +254,8 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
             self._write(f"\t{field.name}")
             if datatype:
                 self._write(f" {field.data_type}")
-            if field.column_description:
+
+            if field.column_description and self._sanitize_comment(field.column_description):
                 self._write(f" COMMENT {self._sanitize_comment(field.column_description)}")
 
     def _write_ddl_table(self, table_definition: TableDefinition):
