@@ -170,8 +170,14 @@ def load_mapping(file_path) -> Tuple[str, DataMapping]:
             if r.tgt_column_name.upper() not in comment_by_target_column_name:
                 comment_by_target_column_name[r.tgt_column_name.upper()] = r.comment
 
-        data_mapping = DataMapping(filename, database_name, table_name, target_field_names, asts_by_target_column,
-                                   comment_by_target_column_name=comment_by_target_column_name)
+        data_mapping = DataMapping(key=filename,
+                                   database_name=database_name,
+                                   table_name=table_name,
+                                   target_column_names=target_field_names,
+                                   ast_by_target_column_name=asts_by_target_column,
+                                   comment_by_target_column_name=comment_by_target_column_name,
+                                   config_entry=None,
+                                   table_definition=None)
     except Exception as e:
         raise TransformationGeneratorError("File: {} \n{}".format(filename, str(e))) from e
     return filename, data_mapping

@@ -9,7 +9,7 @@ from transform_generator.lib.logging import get_logger
 from transform_generator.lib.mapping import load_mappings
 from transform_generator.lib.project_config_entry import ProjectConfigEntry
 from transform_generator.plugin.project_loader import ProjectLoader
-from transform_generator.lib.data_mapping import DataMapping
+from transform_generator.lib.data_mapping import DataMapping, ProgramMapping
 from transform_generator.lib.table_definition import TableDefinition
 from transform_generator.project import Project
 from transform_generator.reader.config_reader import read_config_csv
@@ -71,7 +71,7 @@ class DcProjectLoader(ProjectLoader):
                     config_entries = read_config_csv(config_file_path)
                     data_mapping_group = self.load_mapping_group(project_path, config_file_path, config_entries,
                                                                  proj_cfg_entry)
-                    programs = self.load_programs(config_entries)
+                    programs = self.load_programs(config_entries, project_path)
                     if programs:
                         data_mapping_group.programs = programs
                     data_mapping_groups.append(data_mapping_group)
@@ -132,11 +132,18 @@ class DcProjectLoader(ProjectLoader):
     def load_table_definition(self, table_definition_path: str) -> TableDefinition:
         return super().load_table_definition(table_definition_path)
 
-    def load_programs(self, config_entries: list[ConfigEntry]) -> list[ConfigEntry]:
+    def load_programs(self, config_entries: list[ConfigEntry], project_path: str) -> list[ProgramMapping]:
         program_entries = []
         for entry in config_entries:
             if entry.target_type == 'program':
-                program_entries.append(entry)
+                db = None
+                table_name = None
+                if "." in entry.target_table:
+                    db, table_name = entry.target_table.split(".")
+
+                table_path = join(project_path, "schema", entry.target_table)
+                table_definition = read_table_definition(table_path, db_name=db)
+                program_entries.append(ProgramMapping(entry.input_files, db, table_name, entry, table_definition))
 
         return program_entries
 

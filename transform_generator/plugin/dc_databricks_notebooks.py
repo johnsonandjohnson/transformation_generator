@@ -52,19 +52,20 @@ class GenerateDcTableViewNotebooks(GenerateDcNotebooksAction, GenerateTableViewC
 def _dc_notebook_prologue(widget_base_path: str,
                           mapping_group_config: ProjectConfigEntry,
                           _parallel_db_names_by_db_table_name: dict[str, str]) -> str:
-    prologue = "CREATE WIDGET TEXT processing_date DEFAULT '';\n"
-    prologue += _base_path_widget(widget_base_path)
-
+    prologue = []
     if mapping_group_config.notebooks_to_execute:
         if prologue:
             prologue += '\n'
-        prologue += '%run\n' + '\n'.join(mapping_group_config.notebooks_to_execute.split(','))
+        prologue.append('%run\n' + '\n'.join(mapping_group_config.notebooks_to_execute.split(',')))
+
+    prologue.append("CREATE WIDGET TEXT processing_date DEFAULT '';\n")
+    prologue += _base_path_widget(widget_base_path)
 
     if _parallel_db_names_by_db_table_name:
         if prologue:
             prologue += '\n'
-        prologue += create_db_param_widgets()
-    return prologue
+        prologue.append(create_db_param_widgets())
+    return '\n\n-- COMMAND --\n\n'.join(prologue)
 
 
 def _base_path_widget(widget_base_path) -> str:

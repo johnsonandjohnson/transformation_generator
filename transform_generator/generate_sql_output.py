@@ -45,7 +45,8 @@ def generate_sql_output(project_group: list[Project], output_databricks: str,
     ddl_stage = GenerateDcTableViewNotebooks("ddl")
     executor.execute_stages(project_group,
                             [dml_stage, ddl_stage],
-                            target_output_dir=output_databricks)
+                            target_output_dir=output_databricks,
+                            dc_super_argument='blah')
 
     # config_by_mapping_filename, config_filename_by_target_table, configs_by_config_filename, database_variables, \
     #     project_config, mappings_by_mapping_filename = get_config_structures(config_path, mapping_sheet_path,

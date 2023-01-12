@@ -1,3 +1,4 @@
+from abc import ABC
 from dataclasses import dataclass, field
 from typing import Optional, Set
 
@@ -7,15 +8,19 @@ from transform_generator.parser.ast.transform_exp import TransformExp
 
 
 @dataclass(order=True)
-class DataMapping:
+class BaseMapping(ABC):
     key: str
     database_name: str
     table_name: str
+    config_entry: ConfigEntry
+    table_definition: TableDefinition
+
+
+@dataclass(order=True)
+class DataMapping(BaseMapping):
     target_column_names: set[str]
     ast_by_target_column_name: dict[str, TransformExp]
-    config_entry: ConfigEntry = None
     comment_by_target_column_name: dict[str, Optional[str]] = field(default_factory=dict)
-    table_definition: TableDefinition = None
 
     def __post_init__(self):
         # Dependencies can be reliably inferred from one on the from_clauses,
@@ -34,3 +39,8 @@ class DataMapping:
     @property
     def table_name_qualified(self) -> Set[str]:
         return self.database_name + "." + self.table_name
+
+
+@dataclass(order=True)
+class ProgramMapping(BaseMapping):
+    pass

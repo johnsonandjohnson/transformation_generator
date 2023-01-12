@@ -5,6 +5,7 @@ from pathlib import Path
 
 from transform_generator.executor import PipelineStage
 from transform_generator.generator.databricks_sql_visitor import DataBricksSqlVisitor
+from transform_generator.generator.field import Field
 from transform_generator.generator.sql_query_generator import SqlQueryGenerator
 from transform_generator.lib.data_mapping import DataMapping
 from transform_generator.lib.project_config_entry import ProjectConfigEntry
@@ -134,8 +135,8 @@ class GenerateTransformationNotebooks(GenerateDatabricksNotebooksStage):
 
                 # We want to process only 'table' type mappings, and to group them by target table name
                 # so that we can output all transformations for a given target table into a single notebook.
-                table_only_mappings = (m for m in mapping_group.data_mappings
-                                       if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'})
+                table_only_mappings = [m for m in mapping_group.data_mappings
+                                       if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'}]
                 sorted_mappings = sorted(table_only_mappings, key=lambda m: m.table_name)
                 mappings_by_target_table = groupby(sorted_mappings, key=lambda m: m.table_name)
 
@@ -168,7 +169,7 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
         for project in projects:
             for mapping_group in project.data_mapping_groups:
                 tables = [m for m in mapping_group.data_mappings
-                          if m.config_entry.target_type.lower() not in {'view', 'program', 'lineage'}]
+                          if m.config_entry.target_type.lower() not in {'view', 'lineage'}]
                 views = [m for m in mapping_group.data_mappings
                          if m.config_entry.target_type.lower() == 'view']
 
@@ -207,11 +208,13 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
         if self.__type == 'view':
             for target_view, mappings_iter in mappings_by_target_name:
                 if not first:
+                    self._write('\n')
                     self._end_cell()
                 else:
                     first = False
                 mappings = list(mappings_iter)
                 self._write_ddl_view(mappings, mappings[0].table_definition, mapping_group_config)
+
         elif self.__type == 'table':
             for target_table, mappings_iter in mappings_by_target_name:
                 if not first:
@@ -228,35 +231,55 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
                         mapping_group_config: ProjectConfigEntry):
         db, table = self.get_db_table_name(table_definition.database_name + "." + table_definition.table_name)
         self._write(f'DROP VIEW IF EXISTS {db}.{table};\n\n')
-        self._write(f'CREATE VIEW  {db}.{table}\n(\n')
+        self._write(f'CREATE VIEW {db}.{table}\n(\n')
 
-        for field_name, field in table_definition.non_partitioned_fields.items():
-            self._write(f"\t{field_name} {self._sanitize_comment(field.column_description)}")
+        self._write_fields(list(table_definition.partitioned_fields.values()) +
+                           list(table_definition.non_partitioned_fields.values()), datatype=False)
         self._write('\n)\n')
-        self._write('AS\n')
+        if table_definition.table_description:
+            self._write(f'COMMENT {self._sanitize_comment(table_definition.table_description)}\n')
+        self._write(' AS ( ')
 
         queries = [self.generate_query(m, mapping_group_config) for m in data_mappings]
 
-        self._write(' UNION ALL '.join(queries) + ';')
+        self._write(' UNION ALL '.join(queries) + ' )\n;')
 
-    def _write_ddl_table(self, table_definition: TableDefinition):
-        db, table = self.get_db_table_name(table_definition.database_name + "." + table_definition.table_name)
-        self._write(f'DROP TABLE IF EXISTS {db}.{table};\n\n')
-        self._write(f'CREATE TABLE {db}.{table}\n(\n')
+    def _write_fields(self, fields: list[Field], datatype=True):
         first = True
-        for field_name, field in table_definition.non_partitioned_fields.items():
+        for field in fields:
             if not first:
                 self._write(',\n')
             else:
                 first = False
-            self._write(f"\t{field_name} {field.data_type}")
+            self._write(f"\t{field.name}")
+            if datatype:
+                self._write(f" {field.data_type}")
             if field.column_description:
                 self._write(f" COMMENT {self._sanitize_comment(field.column_description)}")
+
+    def _write_ddl_table(self, table_definition: TableDefinition):
+        db, table = self.get_db_table_name(table_definition.database_name + "." + table_definition.table_name)
+
+        self._write(f'DROP TABLE IF EXISTS {db}.{table};\n\n')
+
+        self._write(f'CREATE TABLE {db}.{table}\n(\n')
+        self._write_fields(table_definition.non_partitioned_fields.values())
         self._write('\n)\n')
-        self._write(f"COMMENT {self._sanitize_comment(table_definition.table_description)}\n" +
-                    'STORED AS PARQUET\n' +
+
+        if table_definition.partitioned_fields:
+            self._write('PARTITIONED BY \n(\n')
+            self._write_fields(table_definition.partitioned_fields.values())
+            self._write('\n)\n')
+
+        if table_definition.table_description:
+            self._write(f"COMMENT {self._sanitize_comment(table_definition.table_description)}")
+
+        self._write('\nSTORED AS PARQUET\n' +
                     f"LOCATION '/mnt/dct/chdp/{table_definition.database_name.lower()}" +
                     f"/{table_definition.table_name.lower()}';")
+
+        if table_definition.partitioned_fields:
+            self._write(f'\n\nALTER TABLE {db}.{table} RECOVER PARTITIONS;')
 
     def _sanitize_comment(self, comment: str):
         """

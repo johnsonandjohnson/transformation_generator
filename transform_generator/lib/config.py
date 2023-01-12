@@ -207,7 +207,7 @@ def get_configs_mappings_from_data_mappings(project_group):
     for project in project_group:
         for data_mapping_group in project.data_mapping_groups:
             project_config[data_mapping_group.name] = data_mapping_group.mapping_group_config
-            if not data_mapping_group.data_mappings and not data_mapping_group.programs:
+            if not data_mapping_group.data_mappings:
                 # to account for projects with no data mappings but with config, such as prisma
                 # load in the ConfigEntry object by reading the config csv
                 config = data_mapping_group.name
