@@ -42,7 +42,7 @@ class GenerateDatabricksNotebooksStage(PipelineStage):
         self.__file.write(data)
 
     def _end_cell(self):
-        self._write('\n-- COMMAND --\n\n')
+        self._write('\n\n-- COMMAND --\n\n')
 
     def _notebook_prologue(self,
                            data_mappings: list[DataMapping],
@@ -154,9 +154,36 @@ class GenerateTransformationNotebooks(GenerateDatabricksNotebooksStage):
                        data_mappings: list[DataMapping],
                        mapping_group_config: ProjectConfigEntry
                        ):
-        queries = [self.generate_query(mapping, mapping_group_config) for mapping in data_mappings]
 
-        self._write('\n')
+        target_table = data_mappings[0].table_name_qualified
+
+        queries_data_mapping_keys = [(self.generate_query(mapping, mapping_group_config), mapping.key) for mapping in data_mappings]
+        partitioned_fields = {pf for dm in data_mappings for pf in dm.table_definition.partitioned_fields.keys()}
+        if partitioned_fields:
+            first = True
+            for query, data_mapping_key in queries_data_mapping_keys:
+                if first:
+                    self._write(f'INSERT OVERWRITE {target_table}\n\n')
+                    self._write(f'PARTITION({",".join(sorted(partitioned_fields))})\n')
+                    first = False
+                else:
+                    self._write('\n\nUNION ALL\n\n')
+                self._write(f'--Below query is generated from : {data_mapping_key}\n')
+                self._write(query)
+            self._write(';')
+        else:
+            first = True
+            for query, data_mapping_key in queries_data_mapping_keys:
+                if not first:
+                    self._end_cell()
+                self._write(f'-- Below query is generated from : {data_mapping_key}\n')
+                if first:
+                    self._write(f'INSERT OVERWRITE {target_table}\n')
+                    first = False
+                else:
+                    self._write(f'INSERT INTO TABLE {target_table}\n')
+                self._write(query)
+                self._write(';')
 
 
 class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
@@ -208,7 +235,6 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
         if self.__type == 'view':
             for target_view, mappings_iter in mappings_by_target_name:
                 if not first:
-                    self._write('\n')
                     self._end_cell()
                 else:
                     first = False
@@ -218,12 +244,11 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
         elif self.__type == 'table':
             for target_table, mappings_iter in mappings_by_target_name:
                 if not first:
-                    self._write('\n')
                     self._end_cell()
                 else:
                     first = False
                 mappings = list(mappings_iter)
-                self._write_ddl_table(mappings[0].table_definition)
+                self. _write_ddl_table(mappings[0].table_definition, mappings[0].config_entry.load_type)
 
     def _write_ddl_view(self,
                         data_mappings: list[DataMapping],
@@ -258,14 +283,20 @@ class GenerateTableViewCreateNotebooks(GenerateDatabricksNotebooksStage):
             if field.column_description and self._sanitize_comment(field.column_description):
                 self._write(f" COMMENT {self._sanitize_comment(field.column_description)}")
 
-    def _write_ddl_table(self, table_definition: TableDefinition):
+    def _write_ddl_table(self, table_definition: TableDefinition, load_type: str='full'):
         db, table = self.get_db_table_name(table_definition.database_name + "." + table_definition.table_name)
 
-        self._write(f'DROP TABLE IF EXISTS {db}.{table};\n\n')
+        if load_type == 'incremental':
+            self._write(f'CREATE TABLE IF NOT EXISTS {db}.{table}')
+        else:
+            self._write(f'DROP TABLE IF EXISTS {db}.{table};\n\n')
+            self._write(f'CREATE TABLE {db}.{table}\n(\n')
 
-        self._write(f'CREATE TABLE {db}.{table}\n(\n')
         self._write_fields(table_definition.non_partitioned_fields.values())
         self._write('\n)\n')
+
+        if load_type == 'incremental':
+            self._write('USING DELTA\n')
 
         if table_definition.partitioned_fields:
             self._write('PARTITIONED BY \n(\n')
